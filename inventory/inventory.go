@@ -3,6 +3,7 @@ package inventory
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"strings"
 
 	"github.com/google/uuid"
@@ -34,6 +35,11 @@ type Product struct {
 // Apply command.
 // MAYBE We may handle multiple Order Create in more advance implementation, ex: CQRS.
 func (p *Product) Apply(oc *OrderCreate) error {
+	// check stock
+	if p.Stock < oc.Quantity {
+		return errors.New("product is not available")
+	}
+
 	// decrease stock by order quantity
 	p.Stock -= oc.Quantity
 
@@ -68,6 +74,7 @@ type OrderCreate struct {
 	Quantity int    `json:"quantity"`
 }
 
+// Repository of inventory
 type Repository interface {
 	FindProduct(ID string) (*Product, error)
 	FindProductTx(tx *sql.Tx, ID string) (*Product, error)
