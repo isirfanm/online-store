@@ -23,3 +23,17 @@ After checking in with our Customer Service and Order Processing departments, we
 - We will use database transaction and repeatable read isolation level to manage concurrent database operation while still maintain reasonable performance. 
 - Product Entity will be the aggregate root for consistency boundary of Product Entity and Order Entity
 
+## Run Test
+
+Run postgres with docker.
+
+```
+docker run --name test-postgres -e POSTGRES_PASSWORD=postgres -d -p 15432:5432 -v $(pwd)/pgdata:/var/lib/postgresql/data postgres
+```
+
+Run all test.
+
+```
+go test .
+```
+
