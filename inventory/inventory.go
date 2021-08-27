@@ -10,12 +10,12 @@ import (
 )
 
 var db *sql.DB
-var repo Repository
+var Repo Repository
 
 // Setup inventory package. Don't forget to call this function before using this package.
 func Setup(d *sql.DB, r Repository) {
 	db = d
-	repo = r
+	Repo = r
 }
 
 // Product entity
@@ -101,7 +101,7 @@ func ProcessOrderCreate(oc *OrderCreate) (*Order, error) {
 		defer tx.Rollback()
 
 		// find product
-		p, err := repo.FindProductTx(tx, oc.SKU)
+		p, err := Repo.FindProductTx(tx, oc.SKU)
 		if err != nil {
 			return nil, err
 		}
@@ -113,7 +113,7 @@ func ProcessOrderCreate(oc *OrderCreate) (*Order, error) {
 		}
 
 		// save product
-		p, err = repo.SaveProductTx(tx, p)
+		p, err = Repo.SaveProductTx(tx, p)
 		if err != nil {
 			if strings.Contains(err.Error(), "could not serialize access due to concurrent update") {
 				// rejected because of concurrent access

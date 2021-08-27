@@ -4,18 +4,21 @@ import (
 	"database/sql"
 
 	"github.com/isirfanm/online-store/inventory"
+	_ "github.com/lib/pq"
 )
 
-var db *sql.DB
-
-// Setup inventory package. Don't forget to call this function before using this package.
-func Setup(d *sql.DB) {
-	db = d
+type RepoImpl struct {
+	db *sql.DB
 }
 
-func FindProduct(ID string) (*inventory.Product, error) {
+// Setup inventory package. Don't forget to call this function before using this package.
+func NewRepo(d *sql.DB) *RepoImpl {
+	return &RepoImpl{db: d}
+}
+
+func (r *RepoImpl) FindProduct(ID string) (*inventory.Product, error) {
 	p := &inventory.Product{}
-	row := db.QueryRow("select sku, stock from product where sku = $1", ID)
+	row := r.db.QueryRow("select sku, stock from product where sku = $1", ID)
 	err := row.Scan(&p.SKU, &p.Stock)
 	if err != nil {
 		return nil, err
@@ -24,7 +27,7 @@ func FindProduct(ID string) (*inventory.Product, error) {
 	return p, nil
 }
 
-func FindProductTx(tx *sql.Tx, ID string) (*inventory.Product, error) {
+func (r *RepoImpl) FindProductTx(tx *sql.Tx, ID string) (*inventory.Product, error) {
 	p := &inventory.Product{}
 	row := tx.QueryRow("select sku, stock from product where sku = $1", ID)
 	err := row.Scan(&p.SKU, &p.Stock)
@@ -35,7 +38,7 @@ func FindProductTx(tx *sql.Tx, ID string) (*inventory.Product, error) {
 	return p, nil
 }
 
-func SaveProductTx(tx *sql.Tx, p *inventory.Product) (*inventory.Product, error) {
+func (r *RepoImpl) SaveProductTx(tx *sql.Tx, p *inventory.Product) (*inventory.Product, error) {
 	// save Product
 	_, err := tx.Exec(
 		"insert into product (sku, stock) VALUES ($1, $2)",
@@ -47,7 +50,7 @@ func SaveProductTx(tx *sql.Tx, p *inventory.Product) (*inventory.Product, error)
 	}
 
 	// save Order
-	o, err := SaveOrderTx(tx, p.Order)
+	o, err := r.SaveOrderTx(tx, p.Order)
 	if err != nil {
 		return nil, err
 	}
@@ -57,9 +60,9 @@ func SaveProductTx(tx *sql.Tx, p *inventory.Product) (*inventory.Product, error)
 	return p, nil
 }
 
-func FindOrder(ID string) (*inventory.Order, error) {
+func (r *RepoImpl) FindOrder(ID string) (*inventory.Order, error) {
 	o := &inventory.Order{}
-	row := db.QueryRow("select id, sku, quantity, \"status\" from \"order\" where id = $1", ID)
+	row := r.db.QueryRow("select id, sku, quantity, \"status\" from \"order\" where id = $1", ID)
 	err := row.Scan(
 		&o.ID,
 		&o.SKU,
@@ -73,7 +76,7 @@ func FindOrder(ID string) (*inventory.Order, error) {
 	return o, nil
 }
 
-func SaveOrderTx(tx *sql.Tx, o *inventory.Order) (*inventory.Order, error) {
+func (r *RepoImpl) SaveOrderTx(tx *sql.Tx, o *inventory.Order) (*inventory.Order, error) {
 	_, err := tx.Exec(
 		`insert into "order" (id, sku, quantity, "status") VALUES ($1, $2, $3, $4)`,
 		o.ID,
