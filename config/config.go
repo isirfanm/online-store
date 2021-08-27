@@ -30,6 +30,8 @@ func SetupAll() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	db.SetMaxIdleConns(5)
+	db.SetMaxOpenConns(10)
 
 	// make repo
 	repo := pi.NewRepo(db)

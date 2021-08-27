@@ -38,10 +38,10 @@ func (r *RepoImpl) FindProductTx(tx *sql.Tx, ID string) (*inventory.Product, err
 	return p, nil
 }
 
-func (r *RepoImpl) SaveProductTx(tx *sql.Tx, p *inventory.Product) (*inventory.Product, error) {
+func (r *RepoImpl) UpdateProductTx(tx *sql.Tx, p *inventory.Product) (*inventory.Product, error) {
 	// save Product
 	_, err := tx.Exec(
-		"insert into product (sku, stock) VALUES ($1, $2)",
+		"update product set stock=$2 where sku=$1",
 		p.SKU,
 		p.Stock,
 	)

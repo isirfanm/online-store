@@ -80,8 +80,8 @@ type Repository interface {
 	FindProduct(ID string) (*Product, error)
 	// FindProductTx find a product by ID with transaction
 	FindProductTx(tx *sql.Tx, ID string) (*Product, error)
-	// SaveProductTx save a product with transaction
-	SaveProductTx(tx *sql.Tx, p *Product) (*Product, error)
+	// UpdateProductTx update a product with transaction
+	UpdateProductTx(tx *sql.Tx, p *Product) (*Product, error)
 	// FindOrder find an order
 	FindOrder(ID string) (*Order, error)
 }
@@ -113,7 +113,7 @@ func ProcessOrderCreate(oc *OrderCreate) (*Order, error) {
 		}
 
 		// save product
-		p, err = Repo.SaveProductTx(tx, p)
+		p, err = Repo.UpdateProductTx(tx, p)
 		if err != nil {
 			if strings.Contains(err.Error(), "could not serialize access due to concurrent update") {
 				// rejected because of concurrent access
