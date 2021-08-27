@@ -76,9 +76,13 @@ type OrderCreate struct {
 
 // Repository of inventory
 type Repository interface {
+	// FindProduct find a product by ID
 	FindProduct(ID string) (*Product, error)
+	// FindProductTx find a product by ID with transaction
 	FindProductTx(tx *sql.Tx, ID string) (*Product, error)
+	// SaveProductTx save a product with transaction
 	SaveProductTx(tx *sql.Tx, p *Product) (*Product, error)
+	// FindOrder find an order
 	FindOrder(ID string) (*Order, error)
 }
 
