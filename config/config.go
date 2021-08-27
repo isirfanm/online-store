@@ -25,6 +25,9 @@ func SetupAll() {
 		log.Fatal(err)
 	}
 
+	log.SetLevel(Cfg.LogLevel)
+	log.SetReportCaller(Cfg.ReportCaller)
+
 	// Init DB connection
 	db, err := sql.Open(Cfg.DriverName, Cfg.DataSourceName)
 	if err != nil {
